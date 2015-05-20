@@ -1,10 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 
+to_search = []
+searched = []
 # first level of the crawler
-# when given url it will print and visit all of the links on the page and store them into a list
+# when given url it will print and visit all of the links and print them
 def main_crawler(url):
-    link_list = []
     # use requests to visit the webpage
     source_code = requests.get(url)
     # format source code of webpage
@@ -16,22 +17,21 @@ def main_crawler(url):
         if link.get('href') is None:
             break
         elif link.get('href')[0] == '/':
-            href = "https://spsu.edu" + link.get('href')
+            href = url + link.get('href')
         elif link.get('href')[0] == '?':
-            href = "https://spsu.edu" + link.get('href')
+            href = url + link.get('href')
+        elif link.get('href')[0] == '#':
+            href = url + link.get('href')
         else:
             href = link.get('href')
-        link_list.append(href)
+        print(href)
         # visit the link and call other method
-        # follow_link(href)
-    for link in link_list:
-        print(link)
+        follow_link(href,url)
 
 # second level crawler
 # called by first level crawler
 # used to visit each of the links found on the first page and continue visting links found in all subsequent pages
-def follow_link(url):
-    link_list = []
+def follow_link(url,domain):
      # use requests to visit the webpage
     source_code = requests.get(url)
     # print out status of webpage
@@ -46,22 +46,138 @@ def follow_link(url):
             if link.get('href') is None:
                 break
             elif link.get('href')[0] == '/':
-                href = "https://spsu.edu" + link.get('href')
+                href = domain + link.get('href')
             elif link.get('href')[0] == '?':
-                href = "https://spsu.edu" + link.get('href')
+                href = domain + link.get('href')
             elif link.get('href')[0] == '#':
-                href = "https://spsu.edu" + link.get('href')
+                href = domain + link.get('href')
             elif link.get('href')[0] == 'h':
                 href = link.get('href')
             else:
                 break
             # link_list.append(href)
             print (href)
+            follow_link(href,domain)
     # for i in link_list :
     #     print (i)
 
+main_crawler("https://spsu.edu")
 
-main_crawler("https://spsu.edu/")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
