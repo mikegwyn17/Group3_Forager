@@ -1,4 +1,5 @@
 import requests
+import re
 from bs4 import BeautifulSoup
 
 def crawler(domain):
@@ -16,25 +17,34 @@ def crawler(domain):
         plain_text = source_code.text
         reaper = BeautifulSoup(plain_text)
         for link in reaper.findAll('a'):
+            # if (link.has_attr('href')):
+            #     print(link['href'])
             if link.get('href') is None:
                 break
+            elif link.get('href') == '':
+                break
             elif link.get('href')[0] == '/':
-                href = domain + link.get('href')
+                puppies = domain + link.get('href')
+                # print(link.get('href'))
             elif link.get('href')[0] == '?':
-                href = domain + link.get('href')
+                puppies = domain + link.get('href')
             elif link.get('href')[0] == '#':
-                href = domain + link.get('href')
+                puppies = domain + link.get('href')
             elif link.get('href')[0] == 'h':
-                href = link.get('href')
+                puppies = link.get('href')
+            elif link.get('href')[0] == '@':
+                puppies = domain + link.get('href')
+            elif link.get('href')[0:2] == '..':
+                puppies = domain + link.get('href')
             else:
                 break
-            to_search.append(href)
+            to_search.append(puppies)
     for link in searched:
         print(link)
     for link in to_search:
         print(link)
 
-crawler("https://spsu.edu/")
+crawler("https://spsu.edu")
 
 
 
