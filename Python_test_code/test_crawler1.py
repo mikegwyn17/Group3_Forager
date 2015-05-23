@@ -8,6 +8,8 @@ searched = []
 def main_crawler(url):
     # use requests to visit the webpage
     source_code = requests.get(url)
+
+
     # format source code of webpage
     plain_text = source_code.text
     soup = BeautifulSoup(plain_text)
@@ -34,6 +36,9 @@ def main_crawler(url):
 def follow_link(url,domain):
      # use requests to visit the webpage
     source_code = requests.get(url)
+    print (source_code.headers.get('content-type'))
+
+    return 0
     # print out status of webpage
     # can be used later to determine if the webpage is a broken link
     print (source_code.status_code)
@@ -61,7 +66,7 @@ def follow_link(url,domain):
     # for i in link_list :
     #     print (i)
 
-main_crawler("https://spsu.edu")
+main_crawler("https://www.google.com/search?site=&tbm=isch&source=hp&biw=1366&bih=633&q=test&oq=test&gs_l=img.3..0l10.423.823.0.930.4.4.0.0.0.0.76.273.4.4.0....0...1ac.1.64.img..0.4.269.kRK2_3znP08#imgrc=VQUlLl0xPZERiM%253A%3BSxKw7cjibJVeiM%3Bhttp%253A%252F%252Fwww.pbs.org%252Fnewshour%252Fwp-content%252Fuploads%252F2014%252F08%252FTesting.jpg%3Bhttp%253A%252F%252Fwww.pbs.org%252Fnewshour%252Fmaking-sense%252Fask-the-headhunter-an-insiders-tips-for-approaching-employment-tests%252F%3B1050%3B701")
 
 
 
