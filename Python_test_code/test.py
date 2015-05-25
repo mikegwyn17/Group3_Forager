@@ -1,7 +1,9 @@
+import requests
 url = "https://spsu.edu"
-s = set()
-s.add(url)
-print(s)
-no = s.pop()
-print(s)
-print (no)
+r = requests.get(url)
+int = 1
+string = "hello"
+int = r.status_code
+string = r.status_code
+print(int)
+print(string)
