@@ -1,0 +1,36 @@
+﻿@model MvcApplication1.Models.ReportDB
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>ReportDB</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.url)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.url)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.parent_url)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.parent_url)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.error_type)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.error_type)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

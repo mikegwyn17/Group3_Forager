@@ -19,13 +19,6 @@ def crawler(domain):
         current_page = to_search.pop()
         if current_page in searched:
             continue
-        # sql2 = "SELECT * FROM searched WHERE link = ? LIMIT 1"
-        # c.execute(sql2,[(current_page)])
-        # temp = c.fetchone()
-        # if temp == None:
-        #     pass
-        # elif temp[0] == current_page:
-        #     continue
         try:
             source_code = requests.get(current_page,timeout = 1,stream=True)
             status_code = source_code.status_code
@@ -49,33 +42,21 @@ def crawler(domain):
                     response += chunk
         except requests.exceptions.ConnectTimeout:
             print ("Timeout error on url: " + current_page)
-            # sql = "INSERT INTO searched (link) VALUES (?)"
-            # c.execute(sql,(current_page,))
-            # db.commit()
             insert(current_page,parent_page,"Connection Timeout",c,db)
             searched.add(current_page)
             continue
         except requests.exceptions.ConnectionError:
             print ("Connection error on url: " + current_page)
-            # sql = "INSERT INTO searched (link) VALUES (?)"
-            # c.execute(sql,(current_page,))
-            # db.commit()
             searched.add(current_page)
             insert(current_page,parent_page,"Connection Error",c,db)
             continue
         except requests.exceptions.TooManyRedirects :
             print ("Too many redirects from url: " + current_page)
-            # sql = "INSERT INTO searched (link) VALUES (?)"
-            # c.execute(sql,(current_page,))
-            # db.commit()
             searched.add(current_page)
             insert(current_page,parent_page,"Too Many Redirects",c,db)
             continue
         except socket.timeout:
             print ("timeout at url: " + current_page)
-            # sql = "INSERT INTO searched (link) VALUES (?)"
-            # c.execute(sql,(current_page,))
-            # db.commit()
             searched.add(current_page)
             insert(current_page,parent_page,"Socket Timeout",c,db)
             continue
@@ -83,15 +64,11 @@ def crawler(domain):
             print ("Read timeout on url: " + current_page)
             searched.add(current_page)
             insert(current_page,parent_page,"Read Timeout",c,db)
-        # sql = "INSERT INTO searched (link) VALUES (?)"
-        # c.execute(sql,(current_page,))
-        # db.commit()
             continue
-        except requests.exceptions.InvalidSchema:
-            print("Invalid Url: " + current_page)
+        except requests.exceptions.InvalidURL:
+            print("Invalid URL: " + current_page)
             searched.add(current_page)
-            insert(current_page,parent_page,"Invalid Schema",c,db)
-            continue
+            insert(current_page,parent_page,"Invalid URL",c,db)
         searched.add(current_page)
         if domain not in current_page:
             print(current_page + " not contained in domain: " + domain)
@@ -116,6 +93,8 @@ def crawler(domain):
                 puppies = start_page + href
             elif href[0:4] == 'http' or href[0:5] == 'https':
                 puppies = href
+            elif href[0:10] == 'javascript':
+                break
             else:
                 puppies = start_page + href
             to_search.add(puppies)
