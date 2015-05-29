@@ -5,7 +5,7 @@ import sqlite3
 import socket
 
 def crawler(domain):
-    db = sqlite3.connect("pydb.db")
+    db = sqlite3.connect("Reports.db")
     c = db.cursor()
     c.execute("DROP TABLE IF EXISTS report_1")
     c.execute("CREATE TABLE report_1 (id integer primary key autoincrement, url text, parent_url text, error_type text)")
