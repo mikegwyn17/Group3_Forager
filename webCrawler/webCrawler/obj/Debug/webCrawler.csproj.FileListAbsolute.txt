@@ -1,0 +1,9 @@
+c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\bin\Debug\webCrawler.exe.config
+c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\bin\Debug\webCrawler.exe
+c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\bin\Debug\webCrawler.pdb
+c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\bin\Debug\HtmlAgilityPack.dll
+c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\bin\Debug\HtmlAgilityPack.pdb
+c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\bin\Debug\HtmlAgilityPack.xml
+c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\obj\Debug\webCrawler.csprojResolveAssemblyReference.cache
+c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\obj\Debug\webCrawler.exe
+c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\obj\Debug\webCrawler.pdb
