@@ -7,12 +7,3 @@ c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\bin
 c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\obj\Debug\webCrawler.csprojResolveAssemblyReference.cache
 c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\obj\Debug\webCrawler.exe
 c:\users\michael\documents\visual studio 2013\Projects\webCrawler\webCrawler\obj\Debug\webCrawler.pdb
-C:\Users\Vance\Documents\GitHub\Group3_Forager\webCrawler\webCrawler\bin\Debug\webCrawler.exe.config
-C:\Users\Vance\Documents\GitHub\Group3_Forager\webCrawler\webCrawler\obj\Debug\webCrawler.exe
-C:\Users\Vance\Documents\GitHub\Group3_Forager\webCrawler\webCrawler\obj\Debug\webCrawler.pdb
-C:\Users\Vance\Documents\GitHub\Group3_Forager\webCrawler\webCrawler\bin\Debug\webCrawler.exe
-C:\Users\Vance\Documents\GitHub\Group3_Forager\webCrawler\webCrawler\bin\Debug\webCrawler.pdb
-C:\Users\Vance\Documents\GitHub\Group3_Forager\webCrawler\webCrawler\bin\Debug\HtmlAgilityPack.dll
-C:\Users\Vance\Documents\GitHub\Group3_Forager\webCrawler\webCrawler\bin\Debug\HtmlAgilityPack.pdb
-C:\Users\Vance\Documents\GitHub\Group3_Forager\webCrawler\webCrawler\bin\Debug\HtmlAgilityPack.xml
-C:\Users\Vance\Documents\GitHub\Group3_Forager\webCrawler\webCrawler\obj\Debug\webCrawler.csprojResolveAssemblyReference.cache
