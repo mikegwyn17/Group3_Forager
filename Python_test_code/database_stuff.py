@@ -1,18 +1,21 @@
-import sqlite3
+import pyodbc
+import pymongo
+from pymongo import MongoClient
 
-def database ():
-    db = sqlite3.connect(":memory:")
-    c = db.cursor()
-    page = 'http://spu.edu/'
-    page = str(page)
-    # c.execute("DROP TABLE searched")
-    c.execute("CREATE TABLE searched (link text)")
-    sql = "INSERT INTO searched (link) VALUES (?)"
-    c.execute(sql,(page,))
-    db.commit()
-    sql2 = "SELECT * FROM searched WHERE link = ?"
-    c.execute(sql2,[(page)])
-    temp = c.fetchone()
-    print (temp[0])
+# def database ():
+client = MongoClient('localhost', 27017)
+db = client.Reports_Database
+collection = client.report_data
+# report = {"report_number": 1,
+#           "error_number": 1,
+#           "url": "spsu.edu",
+#           "parent_url": "spsu.edu",
+#           "error_type": "404"}
+report_data = db.report_data
+report_data.update({'report_number': 1}, {'$inc': {'error_number': 1}})
+print(report_data.find_one({'report_number': 2}))
 
-database()
+# def update_report_number(db, report_number):
+#
+# # database()
+# update_report_number(db, 1)
