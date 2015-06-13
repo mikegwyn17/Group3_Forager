@@ -4,43 +4,43 @@ import requests.exceptions
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
 from datetime import datetime
+import tldextract
 
-def crawler(domain):
+def crawler(start_page):
+    domain = str(tldextract.extract(start_page).domain)
+    requests.packages.urllib3.disable_warnings()
     client = MongoClient('localhost',27017)
     db = client.Reports_Database
     report_number = db.report_data.count() + 1
-    error_count = 0
-    page_count = 0
     start_time = str(datetime.utcnow().date()) + " / "
     start_time += str(datetime.utcnow().time())
-    insert_report_data(db,report_number,error_count,page_count,start_time, end_time="")
-    start_page = "http://" + domain
+    insert_report_data(db,report_number,start_time, end_time="")
     to_search = []
     searched = set()
     parents = []
     to_search.append(start_page)
-    count = 0
+    headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.124 Safari/537.36'}
     while len(to_search) != 0:
         current_page = to_search.pop()
+        current_domain = str(tldextract.extract(current_page).domain)
         if len(parents) != 0:
             parents.pop()
         if current_page in searched:
             continue
         try:
-            source_code = requests.get(current_page, stream=True, allow_redirects = True)
+            source_code = requests.head(current_page, headers = headers, allow_redirects = True, verify = False)
+            contentType = source_code.headers.get('content-type')
+            searched.add(current_page)
             status_code = source_code.status_code
             print(current_page)
             print(status_code)
             if status_code is not 200:
-                count += 1
-                insert_report(current_page, parents[0], str(status_code), db, count)
+                insert_report(report_number,current_page, parents[0], str(status_code), db)
                 update_report_data(db,report_number,"error_count")
                 continue
-            contentType = source_code.headers.get('content-type')
             if contentType is None:
                 print("None content type: " + current_page)
-                count += 1
-                insert_report(current_page, parents[0], "None content-type", db, count)
+                insert_report(current_page, parents[0], "None content-type",db)
                 update_report_data(db,report_number,"error_count")
                 continue
             elif 'text/html' not in contentType and 'application/xhtml+xml' not in contentType and 'application/xml' not in contentType:
@@ -48,57 +48,88 @@ def crawler(domain):
                 print("Wrong content-type on url, not parsing: " + current_page)
                 searched.add(current_page)
                 continue
-            response = ''
-            for chunk in source_code.iter_content(chunk_size=1024, decode_unicode=True):
-                if chunk:
-                    response += chunk
         except requests.exceptions.ConnectTimeout:
             print("Timeout error on url: " + current_page)
-            count += 1
-            insert_report(current_page, parents[0], "Connection Timeout", db, count)
+            insert_report(current_page, parents[0], "Connection Timeout", db)
             update_report_data(db,report_number,"error_count")
             searched.add(current_page)
             continue
         except requests.exceptions.ConnectionError:
             print("Connection error on url: " + current_page)
             searched.add(current_page)
-            count += 1
-            insert_report(current_page, parents[0], "Connection Error", db, count)
+            insert_report(current_page, parents[0], "Connection Error", db)
             update_report_data(db,report_number,"error_count")
             continue
         except requests.exceptions.TooManyRedirects:
             print("Too many redirects from url: " + current_page)
             searched.add(current_page)
-            count += 1
-            insert_report(current_page, parents[0], "Too Many Redirects", db, count)
+            insert_report(current_page, parents[0], "Too Many Redirects", db)
             update_report_data(db,report_number,"error_count")
             continue
         except socket.timeout:
             print("timeout at url: " + current_page)
             searched.add(current_page)
-            count += 1
-            insert_report(current_page, parents[0], "Socket Timeout", db, count)
+            insert_report(current_page, parents[0], "Socket Timeout", db)
             update_report_data(db,report_number,"error_count")
             continue
         except requests.exceptions.ReadTimeout:
             print("Read timeout on url: " + current_page)
             searched.add(current_page)
-            count += 1
-            insert_report(current_page, parents[0], "Read Timeout", db, count)
+            insert_report(current_page, parents[0], "Read Timeout", db)
             update_report_data(db,report_number,"error_count")
             continue
         except requests.exceptions.InvalidURL:
             print("Invalid URL: " + current_page)
             searched.add(current_page)
-            count += 1
-            insert_report(current_page, parents[0], "Invalid URL", db, count)
+            insert_report(current_page, parents[0], "Invalid URL", db)
             update_report_data(db,report_number,"error_count")
-        searched.add(current_page)
-        if domain not in current_page:
+        if current_domain not in domain:
             print(current_page + " not contained in domain: " + domain)
             continue
-        plain_text = response
+        plain_text = requests.get(current_page, headers = headers, verify = False, allow_redirects = True)
+        plain_text = plain_text.text
         reaper = BeautifulSoup(plain_text)
+        for image in reaper.findAll('img'):
+            src = image.get('src')
+            if (src is "http://fac-web.spsu.edu/aa/honorcode/images/spsu.ico"):
+                racos = 1
+            if src is None:
+                break
+            elif src[0:4] == 'http' or src[0:5] == 'https':
+                src = src
+            else:
+                src = start_page + src
+            print(src)
+            try :
+                image_status_code = requests.head(src, allow_redirects = True, verify = False).status_code
+                print(image_status_code)
+                if image_status_code is not 200:
+                    insert_report(src, current_page, "Missing Image", db)
+                    update_report_data(db,report_number,"error_count")
+            except requests.exceptions.ConnectionError:
+                insert_report(src, current_page, "Missing Image", db)
+                update_report_data(db,report_number,"error_count")
+            except:
+                insert_report(report_number, src, current_page, "Missing Image", db)
+                update_report_data(db,report_number,"error_count")
+        for css in reaper.findAll('link'):
+            href = css.get('href')
+            if href is None:
+                break
+            elif href[0:4] == 'http' or href[0:5] == 'https':
+                href = href
+            else:
+                href = start_page + href
+            print(href)
+            try:
+                css_status_code = requests.head(href, allow_redirects = True, verify = False).status_code
+                print(css_status_code)
+                if css_status_code is not 200:
+                    insert_report(report_number, href, current_page, "Missing CSS File", db)
+                    update_report_data(db,report_number,"error_count")
+            except requests.exceptions.ConnectionError:
+                insert_report(href, current_page, "Missing Image", db)
+                update_report_data(db,report_number,"error_count")
         for link in reaper.findAll('a'):
             href = link.get('href')
             if href is None:
@@ -127,20 +158,27 @@ def crawler(domain):
     update_report_data(db,report_number,"end_time")
 
 
-def insert_report(url, parent, error_type,db, error_number):
-    report = {"report_number": 1,
-              "error_number": error_number,
-              "url": url,
-              "parent_url": parent,
-              "error_type": error_type}
+def insert_report(report_number, url, parent, error_type, db):
+    # report = {"report_number": report_number,
+    #           "error_number": error_number,
+    #           "url": url,
+    #           "parent_url": parent,
+    #           "error_type": error_type}
     Reports = db.Reports
-    reports_id = Reports.insert(report)
-    reports_id
+    taco = Reports.find_one({'parent_url': parent}, {'report_number': report_number})
+    if taco is None:
+        report = {"report_number": report_number,
+        "parent_url": parent,
+        "errors": []}
+        reports_id = Reports.insert(report)
+        reports_id
+    Reports.update({'report_number': 1}, {'$push': {'errors': {'url': url, "error_type": error_type}}})
 
-def insert_report_data(db, report_number, error_count, page_count, start_time, end_time):
+
+def insert_report_data(db, report_number, start_time, end_time):
     report_data = {"report_number": report_number,
-                   "error_count": error_count,
-                   "page_count": page_count,
+                   "error_count": 0,
+                   "page_count": 0,
                    "start_time": start_time,
                    "end_time": end_time }
     reports_data = db.Report_Data
@@ -156,6 +194,6 @@ def update_report_data (db, report_number, update_type):
     else:
         end_time = str(datetime.utcnow().date()) + " / "
         end_time += str(datetime.utcnow().time())
-        report_data.update({'report_number': report_number}, {'$set': {'end_time': end_time }})
+        report_data.update({'report_number': report_number}, {'$set': {'end_time': end_time}})
 
-crawler("spsu.edu/")
+crawler("https://www.spsu.edu/")
