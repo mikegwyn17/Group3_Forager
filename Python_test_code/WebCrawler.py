@@ -172,7 +172,7 @@ def insert_report(report_number, url, parent, error_type, db):
         "errors": []}
         reports_id = Reports.insert(report)
         reports_id
-    Reports.update({'report_number': 1}, {'$push': {'errors': {'url': url, "error_type": error_type}}})
+    Reports.update({'report_number': report_number, 'parent_url': parent}, {'$push': {'errors': {'url': url, "error_type": error_type}}})
 
 
 def insert_report_data(db, report_number, start_time, end_time):
