@@ -53,37 +53,32 @@ def crawler(start_page):
             print("Timeout error on url: " + current_page)
             insert_report(report_number, current_page, parents[0], "Connection Timeout", db)
             update_report_data(db,report_number,"error_count")
-            searched.add(current_page)
             continue
         except requests.exceptions.ConnectionError:
             print("Connection error on url: " + current_page)
-            searched.add(current_page)
             insert_report(report_number, current_page, parents[0], "Connection Error", db)
             update_report_data(db,report_number,"error_count")
             continue
         except requests.exceptions.TooManyRedirects:
             print("Too many redirects from url: " + current_page)
-            searched.add(current_page)
             insert_report(report_number, current_page, parents[0], "Too Many Redirects", db)
             update_report_data(db,report_number,"error_count")
             continue
         except socket.timeout:
             print("timeout at url: " + current_page)
-            searched.add(current_page)
             insert_report(report_number, current_page, parents[0], "Socket Timeout", db)
             update_report_data(db,report_number,"error_count")
             continue
         except requests.exceptions.ReadTimeout:
             print("Read timeout on url: " + current_page)
-            searched.add(current_page)
             insert_report(report_number, current_page, parents[0], "Read Timeout", db)
             update_report_data(db,report_number,"error_count")
             continue
         except requests.exceptions.InvalidURL:
             print("Invalid URL: " + current_page)
-            searched.add(current_page)
             insert_report(report_number, current_page, parents[0], "Invalid URL", db)
             update_report_data(db,report_number,"error_count")
+        searched.add(current_page)
         if current_domain not in domain:
             print(current_page + " not contained in domain: " + domain)
             continue
@@ -160,33 +155,33 @@ def crawler(start_page):
         update_report_data(db,report_number,"page_count")
     update_report_data(db,report_number,"end_time")
 
-
 def insert_report(report_number, url, parent, error_type, db):
-    # report = {"report_number": report_number,
-    #           "error_number": error_number,
-    #           "url": url,
-    #           "parent_url": parent,
-    #           "error_type": error_type}
     Reports = db.Reports
-    taco = Reports.find_one({'parent_url': parent}, {'report_number': report_number})
+    # taco = Reports.find_one({"$and":[{'parent_url': parent}, {'report_number': report_number})]})
+    taco = Reports.find_one({"$and": [{"parent_url":parent}, {"report_number":report_number}]})
     if taco is None:
         report = {"report_number": report_number,
         "parent_url": parent,
-        "errors": []}
+        "errors": [],
+        "error_count": 0}
         reports_id = Reports.insert(report)
         reports_id
-    Reports.update({'report_number': report_number, 'parent_url': parent}, {'$push': {'errors': {'url': url, "error_type": error_type}}})
-
+    Reports.update_one({"$and": [{"parent_url":parent}, {"report_number":report_number}]}, {'$push': {'errors': {'url': url, "error_type": error_type}}})
+    Reports.update({"$and": [{"parent_url":parent}, {"report_number":report_number}]}, {'inc': {"error_count": 1}})
+    # Reports.find( { "$orderby": { "error_count" : 1 } } )
+    Reports.find({"report_number": report_number}).sort("error_count",1)
 
 def insert_report_data(db, report_number, start_time, end_time):
     report_data = {"report_number": report_number,
-                   "error_count": 0,
+                    "error_count": 0,
                    "page_count": 0,
                    "start_time": start_time,
                    "end_time": end_time }
     reports_data = db.Report_Data
     report_data_id = reports_data.insert(report_data)
     report_data_id
+    # reports_data.find( {"$orderby": { "report_number" : 1 } } )
+    reports_data.find().sort("report_number", 1)
 
 def update_report_data (db, report_number, update_type):
     report_data = db.Report_Data
